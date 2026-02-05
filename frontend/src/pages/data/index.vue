@@ -147,7 +147,7 @@ onMounted(() => {
 <style>
 .container {
   padding: 20px;
-  background-color: #f5f5f5;
+  background: linear-gradient(180deg, #fdf7f2 0%, #f6f2ee 40%, #f6f2ee 100%);
   min-height: 100vh;
 }
 
@@ -155,26 +155,31 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #c56a1b 0%, #d7822d 100%);
+  color: #fff;
+  box-shadow: 0 8px 16px rgba(197, 106, 27, 0.2);
 }
 
 .page-title {
   font-size: 20px;
   font-weight: bold;
-  color: #222;
+  color: #fff;
   display: block;
 }
 
 .page-subtitle {
   font-size: 12px;
-  color: #888;
+  color: rgba(255, 255, 255, 0.8);
   margin-top: 4px;
   display: block;
 }
 
 .update-time {
   font-size: 12px;
-  color: #666;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .summary-grid {
@@ -186,14 +191,15 @@ onMounted(() => {
 
 .summary-card {
   background-color: #fff;
-  border-radius: 12px;
-  padding: 14px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  border-radius: 14px;
+  padding: 14px 16px;
+  border: 1px solid #f1e2d6;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.04);
 }
 
 .summary-label {
   font-size: 12px;
-  color: #666;
+  color: #8b6a4b;
   display: block;
 }
 
@@ -201,37 +207,38 @@ onMounted(() => {
   margin-top: 6px;
   font-size: 18px;
   font-weight: bold;
-  color: #111;
+  color: #3d2a1a;
   display: block;
 }
 
 .section {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .section-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: bold;
-  margin-bottom: 10px;
-  color: #333;
+  margin-bottom: 12px;
+  color: #3d2a1a;
 }
 
 .card {
   background-color: #fff;
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid #f3e7dd;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.04);
 }
 
 .status-card {
-  padding: 10px 15px;
+  padding: 12px 16px;
 }
 
 .status-item {
   display: flex;
   justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0e7de;
 }
 
 .status-item:last-child {
@@ -246,9 +253,9 @@ onMounted(() => {
 .data-item {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0e7de;
 }
 
 .data-item:last-child {
@@ -256,7 +263,7 @@ onMounted(() => {
 }
 
 .label {
-  color: #666;
+  color: #7f6a58;
 }
 
 .value {
@@ -266,19 +273,19 @@ onMounted(() => {
 
 .chart-placeholder {
   height: 150px;
-  background-color: #f9f9f9;
-  border: 1px dashed #ccc;
-  border-radius: 8px;
+  background: linear-gradient(135deg, #fff7ef 0%, #f9efe6 100%);
+  border: 1px dashed #e5cbb4;
+  border-radius: 12px;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: #999;
-  margin-top: 10px;
+  color: #a07d5c;
+  margin-top: 12px;
 }
 
 .note-item {
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0e7de;
 }
 
 .note-item:last-child {
@@ -288,13 +295,13 @@ onMounted(() => {
 .note-title {
   font-size: 14px;
   font-weight: bold;
-  color: #333;
+  color: #3d2a1a;
   display: block;
 }
 
 .note-desc {
   font-size: 12px;
-  color: #777;
+  color: #8b6a4b;
   margin-top: 4px;
   display: block;
 }

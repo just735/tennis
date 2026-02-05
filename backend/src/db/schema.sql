@@ -1,19 +1,19 @@
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT NOT NULL UNIQUE,
-  phone TEXT,
-  password_hash TEXT NOT NULL,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  openid TEXT NOT NULL UNIQUE,
+  nickname TEXT,
+  avatar TEXT,
+  ai_api_key TEXT,
+  create_time TEXT NOT NULL DEFAULT (datetime('now')),
+  update_time TEXT NOT NULL DEFAULT (datetime('now')),
+  ext_info TEXT
 );
 
-CREATE TABLE IF NOT EXISTS user_profiles (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  user_id INTEGER NOT NULL UNIQUE,
-  level TEXT,
-  handedness TEXT,
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  FOREIGN KEY (user_id) REFERENCES users(id)
-);
+CREATE TRIGGER IF NOT EXISTS users_update_time
+AFTER UPDATE ON users
+BEGIN
+  UPDATE users SET update_time = datetime('now') WHERE id = NEW.id;
+END;
 
 CREATE TABLE IF NOT EXISTS training_sessions (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

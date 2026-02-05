@@ -21,7 +21,7 @@
     <view class="section">
       <view class="section-title">排行榜（示例）</view>
       <view class="card">
-        <view class="rank-row" v-for="item in mockRank" :key="item.rank">
+        <view class="rank-row" :class="item.rank <= 3 ? 'rank-top' : ''" v-for="item in mockRank" :key="item.rank">
           <view class="rank-left">
             <text class="rank-num">{{ item.rank }}</text>
             <view class="rank-user">
@@ -58,33 +58,39 @@ const mockRank = ref([
 <style>
 .container {
   padding: 20px;
-  background-color: #f5f5f5;
+  background: linear-gradient(180deg, #fdf7f2 0%, #f6f2ee 40%, #f6f2ee 100%);
   min-height: 100vh;
 }
 
 .page-header {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #c56a1b 0%, #d7822d 100%);
+  color: #fff;
+  box-shadow: 0 8px 16px rgba(197, 106, 27, 0.2);
 }
 
 .page-title {
   font-size: 20px;
   font-weight: bold;
-  color: #222;
+  color: #fff;
   display: block;
 }
 
 .page-subtitle {
   font-size: 12px;
-  color: #888;
+  color: rgba(255, 255, 255, 0.8);
   margin-top: 4px;
   display: block;
 }
 
 .card {
   background-color: #fff;
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid #f3e7dd;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.04);
 }
 
 .summary-row {
@@ -94,15 +100,15 @@ const mockRank = ref([
 
 .summary-item {
   flex: 1;
-  background-color: #fff7ee;
-  border: 1px solid #ffe2c8;
-  border-radius: 10px;
+  background: linear-gradient(135deg, #fff7ef 0%, #f9efe6 100%);
+  border: 1px solid #f2d7bf;
+  border-radius: 12px;
   padding: 12px;
 }
 
 .summary-label {
   font-size: 12px;
-  color: #666;
+  color: #8b6a4b;
   display: block;
 }
 
@@ -110,27 +116,27 @@ const mockRank = ref([
   margin-top: 6px;
   font-size: 18px;
   font-weight: bold;
-  color: #111;
+  color: #3d2a1a;
   display: block;
 }
 
 .section {
-  margin-top: 16px;
+  margin-top: 18px;
 }
 
 .section-title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: bold;
-  margin-bottom: 10px;
-  color: #333;
+  margin-bottom: 12px;
+  color: #3d2a1a;
 }
 
 .rank-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0e7de;
 }
 
 .rank-row:last-child {
@@ -144,9 +150,9 @@ const mockRank = ref([
 }
 
 .rank-num {
-  width: 26px;
-  height: 26px;
-  line-height: 26px;
+  width: 28px;
+  height: 28px;
+  line-height: 28px;
   text-align: center;
   border-radius: 50%;
   background-color: #fff2e6;
@@ -163,24 +169,33 @@ const mockRank = ref([
 .rank-name {
   font-size: 14px;
   font-weight: bold;
-  color: #222;
+  color: #3d2a1a;
 }
 
 .rank-desc {
   font-size: 12px;
-  color: #888;
+  color: #8b6a4b;
   margin-top: 2px;
 }
 
 .rank-score {
   font-size: 14px;
   font-weight: bold;
-  color: #111;
+  color: #3d2a1a;
 }
 
 .note {
   font-size: 12px;
-  color: #777;
+  color: #8b6a4b;
   line-height: 1.6;
+}
+
+.rank-top .rank-num {
+  background: linear-gradient(135deg, #f3c180 0%, #d7822d 100%);
+  color: #fff;
+}
+
+.rank-top .rank-score {
+  color: #c56a1b;
 }
 </style>

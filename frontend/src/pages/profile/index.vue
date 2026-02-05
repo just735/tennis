@@ -70,7 +70,7 @@ const profile = ref(null)
 
 const displayName = computed(() => {
   if (!user.value) return '未登录'
-  return user.value.username
+  return user.value.nickname || user.value.openid
 })
 
 const displayDesc = computed(() => {
@@ -119,11 +119,11 @@ const sessions = ref([
 ])
 
 const goLogin = () => {
-  uni.navigateTo({ url: '/pages/auth/login' })
+  uni.navigateTo({ url: '/pages/auth/login/index' })
 }
 
 const goRegister = () => {
-  uni.navigateTo({ url: '/pages/auth/register' })
+  uni.navigateTo({ url: '/pages/auth/register/index' })
 }
 
 const logout = () => {
@@ -141,39 +141,46 @@ onShow(() => {
 <style>
 .container {
   padding: 20px;
-  background-color: #f5f5f5;
+  background: linear-gradient(180deg, #fdf7f2 0%, #f6f2ee 40%, #f6f2ee 100%);
   min-height: 100vh;
 }
 
 .page-header {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #c56a1b 0%, #d7822d 100%);
+  color: #fff;
+  box-shadow: 0 8px 16px rgba(197, 106, 27, 0.2);
 }
 
 .page-title {
   font-size: 20px;
   font-weight: bold;
-  color: #222;
+  color: #fff;
   display: block;
 }
 
 .page-subtitle {
   font-size: 12px;
-  color: #888;
+  color: rgba(255, 255, 255, 0.8);
   margin-top: 4px;
   display: block;
 }
 
 .card {
   background-color: #fff;
-  border-radius: 12px;
-  padding: 15px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid #f3e7dd;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.04);
 }
 
 .profile-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: linear-gradient(135deg, #fff7ef 0%, #f9efe6 100%);
 }
 
 .profile-left {
@@ -183,22 +190,23 @@ onShow(() => {
 }
 
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background-color: #fff2e6;
+  border: 2px solid #f0d7c1;
 }
 
 .profile-name {
   font-size: 16px;
   font-weight: bold;
-  color: #222;
+  color: #3d2a1a;
   display: block;
 }
 
 .profile-desc {
   font-size: 12px;
-  color: #888;
+  color: #8b6a4b;
   margin-top: 4px;
   display: block;
 }
@@ -209,14 +217,16 @@ onShow(() => {
   border-radius: 20px;
   font-size: 14px;
   border: 1px solid #c56a1b;
+  padding: 0 14px;
 }
 
 .btn-primary {
-  background-color: #c56a1b;
+  background: linear-gradient(135deg, #c56a1b 0%, #d7822d 100%);
   color: #fff;
   border-radius: 20px;
   font-size: 14px;
   margin-left: 8px;
+  padding: 0 14px;
 }
 
 .profile-actions {
@@ -225,14 +235,14 @@ onShow(() => {
 }
 
 .section {
-  margin-top: 16px;
+  margin-top: 18px;
 }
 
 .section-title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: bold;
-  margin-bottom: 10px;
-  color: #333;
+  margin-bottom: 12px;
+  color: #3d2a1a;
 }
 
 .device-row,
@@ -241,8 +251,8 @@ onShow(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0e7de;
 }
 
 .device-row:last-child,
@@ -254,13 +264,13 @@ onShow(() => {
 .device-name {
   font-size: 14px;
   font-weight: bold;
-  color: #222;
+  color: #3d2a1a;
   display: block;
 }
 
 .device-desc {
   font-size: 12px;
-  color: #888;
+  color: #8b6a4b;
   margin-top: 2px;
   display: block;
 }
@@ -282,14 +292,14 @@ onShow(() => {
 .session-title {
   font-size: 14px;
   font-weight: bold;
-  color: #222;
+  color: #3d2a1a;
   display: block;
 }
 
 .goal-desc,
 .session-desc {
   font-size: 12px;
-  color: #888;
+  color: #8b6a4b;
   margin-top: 2px;
   display: block;
 }
