@@ -1,0 +1,303 @@
+<template>
+  <view class="container">
+    <view class="page-header">
+      <text class="page-title">我的</text>
+      <text class="page-subtitle">训练档案与设备管理</text>
+    </view>
+
+    <view class="card profile-card">
+      <view class="profile-left">
+        <view class="avatar"></view>
+        <view>
+          <text class="profile-name">{{ displayName }}</text>
+          <text class="profile-desc">{{ displayDesc }}</text>
+        </view>
+      </view>
+      <view class="profile-actions">
+        <button v-if="!user" class="btn-outline" @click="goLogin">登录</button>
+        <button v-if="!user" class="btn-primary" @click="goRegister">注册</button>
+        <button v-if="user" class="btn-outline" @click="logout">退出登录</button>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">设备绑定</view>
+      <view class="card">
+        <view class="device-row" v-for="item in devices" :key="item.name">
+          <view>
+            <text class="device-name">{{ item.name }}</text>
+            <text class="device-desc">{{ item.desc }}</text>
+          </view>
+          <text class="device-status" :class="item.status === '已连接' ? 'online' : 'offline'">{{ item.status }}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">训练目标</view>
+      <view class="card">
+        <view class="goal-row" v-for="goal in goals" :key="goal.title">
+          <view>
+            <text class="goal-title">{{ goal.title }}</text>
+            <text class="goal-desc">{{ goal.desc }}</text>
+          </view>
+          <text class="goal-progress">{{ goal.progress }}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-title">最近训练</view>
+      <view class="card">
+        <view class="session-row" v-for="session in sessions" :key="session.time">
+          <view>
+            <text class="session-title">{{ session.title }}</text>
+            <text class="session-desc">{{ session.time }}</text>
+          </view>
+          <text class="session-score">{{ session.score }}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script setup>
+import { ref, computed } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
+
+const user = ref(null)
+const profile = ref(null)
+
+const displayName = computed(() => {
+  if (!user.value) return '未登录'
+  return user.value.username
+})
+
+const displayDesc = computed(() => {
+  if (!user.value) return '登录后同步训练档案'
+  const level = profile.value?.level || '初级球员'
+  const handedness = profile.value?.handedness || '右手持拍'
+  return `${level} · ${handedness}`
+})
+
+const fetchProfile = async () => {
+  const token = uni.getStorageSync('token')
+  if (!token) return
+  try {
+    const res = await uni.request({
+      url: 'http://localhost:3001/api/auth/me',
+      method: 'GET',
+      header: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+    if (res.statusCode === 200 && res.data) {
+      user.value = res.data.user
+      profile.value = res.data.profile
+    }
+  } catch (e) {
+    user.value = null
+    profile.value = null
+  }
+}
+
+const devices = ref([
+  { name: '拍柄设备', desc: 'SN: RH-202402-01', status: '已连接' },
+  { name: '足底设备', desc: 'SN: FT-202402-02', status: '已连接' }
+])
+
+const goals = ref([
+  { title: '挥拍速度', desc: '目标 130 km/h', progress: '本周 122 km/h' },
+  { title: '步频节奏', desc: '目标 180 步/分钟', progress: '本周 165 步/分钟' },
+  { title: 'ACE 球数量', desc: '目标 15 次', progress: '本周 9 次' }
+])
+
+const sessions = ref([
+  { title: '正手击球训练', time: '今天 19:30 · 45 分钟', score: '评分 86' },
+  { title: '发球专项训练', time: '昨日 18:10 · 30 分钟', score: '评分 79' },
+  { title: '步伐与重心', time: '02/03 20:00 · 40 分钟', score: '评分 82' }
+])
+
+const goLogin = () => {
+  uni.navigateTo({ url: '/pages/auth/login' })
+}
+
+const goRegister = () => {
+  uni.navigateTo({ url: '/pages/auth/register' })
+}
+
+const logout = () => {
+  uni.removeStorageSync('token')
+  user.value = null
+  profile.value = null
+  uni.showToast({ title: '已退出', icon: 'none' })
+}
+
+onShow(() => {
+  fetchProfile()
+})
+</script>
+
+<style>
+.container {
+  padding: 20px;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.page-header {
+  margin-bottom: 16px;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #222;
+  display: block;
+}
+
+.page-subtitle {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+  display: block;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.profile-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.profile-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #fff2e6;
+}
+
+.profile-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #222;
+  display: block;
+}
+
+.profile-desc {
+  font-size: 12px;
+  color: #888;
+  margin-top: 4px;
+  display: block;
+}
+
+.btn-outline {
+  background-color: #fff;
+  color: #c56a1b;
+  border-radius: 20px;
+  font-size: 14px;
+  border: 1px solid #c56a1b;
+}
+
+.btn-primary {
+  background-color: #c56a1b;
+  color: #fff;
+  border-radius: 20px;
+  font-size: 14px;
+  margin-left: 8px;
+}
+
+.profile-actions {
+  display: flex;
+  align-items: center;
+}
+
+.section {
+  margin-top: 16px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.device-row,
+.goal-row,
+.session-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.device-row:last-child,
+.goal-row:last-child,
+.session-row:last-child {
+  border-bottom: none;
+}
+
+.device-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #222;
+  display: block;
+}
+
+.device-desc {
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+  display: block;
+}
+
+.device-status {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.online {
+  color: #2ecc71;
+}
+
+.offline {
+  color: #ff4d4f;
+}
+
+.goal-title,
+.session-title {
+  font-size: 14px;
+  font-weight: bold;
+  color: #222;
+  display: block;
+}
+
+.goal-desc,
+.session-desc {
+  font-size: 12px;
+  color: #888;
+  margin-top: 2px;
+  display: block;
+}
+
+.goal-progress,
+.session-score {
+  font-size: 12px;
+  font-weight: bold;
+  color: #c56a1b;
+}
+</style>

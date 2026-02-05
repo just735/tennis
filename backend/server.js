@@ -1,17 +1,6 @@
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
+const app = require('./src/app')
+const config = require('./src/config')
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(cors());
-app.use(express.json());
-
-app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to Tennis API' });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+app.listen(config.port, () => {
+  console.log(`Server is running on port ${config.port}`)
+})
