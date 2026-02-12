@@ -110,23 +110,28 @@ const formatTime = (date) => {
 
 const fetchData = async () => {
   try {
-    const res = await uni.request({
-      url: 'http://localhost:3001/api/device-data',
-      method: 'GET'
+    const res = await uniCloud.callFunction({
+      name: 'tennis-device',
+      data: {
+        action: 'latest',
+        data: {
+          username: uni.getStorageSync('username')
+        }
+      }
     })
-    if (res.statusCode === 200 && res.data) {
-      racketData.value = res.data.racket
-      footData.value = res.data.foot
+    const payload = res.result || {}
+    if (payload.code === 0 && payload.data) {
+      racketData.value = payload.data.racket
+      footData.value = payload.data.foot
       summary.value = [
-        { label: '今日挥拍', value: res.data.racket.count },
-        { label: '平均速度', value: `${res.data.racket.speed} km/h` },
-        { label: 'ACE 球', value: res.data.racket.aceCount },
-        { label: '平均步距', value: `${res.data.foot.distance} cm` }
+        { label: '今日挥拍', value: payload.data.racket.count },
+        { label: '平均速度', value: `${payload.data.racket.speed} km/h` },
+        { label: 'ACE 球', value: payload.data.racket.aceCount },
+        { label: '平均步距', value: `${payload.data.foot.distance} cm` }
       ]
       lastUpdate.value = formatTime(new Date())
     }
   } catch (e) {
-    console.error('Failed to fetch data', e)
     racketData.value = { speed: 120, count: 45, aceCount: 12 }
     footData.value = { distance: 55 }
     summary.value = [

@@ -6,17 +6,32 @@
     </view>
 
     <view class="card profile-card">
-      <view class="profile-left">
-        <view class="avatar"></view>
+      <view class="profile-left" @click="openEditSheet">
+        <image v-if="user?.avatar" class="avatar" :src="user.avatar" mode="aspectFill"></image>
+        <view v-else class="avatar"></view>
         <view>
           <text class="profile-name">{{ displayName }}</text>
           <text class="profile-desc">{{ displayDesc }}</text>
+          <text v-if="user" class="profile-tip">点击头像区域编辑资料</text>
         </view>
       </view>
       <view class="profile-actions">
         <button v-if="!user" class="btn-outline" @click="goLogin">登录</button>
         <button v-if="!user" class="btn-primary" @click="goRegister">注册</button>
         <button v-if="user" class="btn-outline" @click="logout">退出登录</button>
+      </view>
+    </view>
+
+    <view v-if="showNicknameModal" class="modal-mask">
+      <view class="modal-card">
+        <text class="modal-title">修改昵称</text>
+        <input class="modal-input" v-model="nicknameDraft" placeholder="请输入昵称" />
+        <view class="modal-actions">
+          <button class="btn-outline" @click="closeNicknameModal">取消</button>
+          <button class="btn-primary" @click="confirmNickname" :disabled="saving">
+            {{ saving ? '保存中...' : '确定' }}
+          </button>
+        </view>
       </view>
     </view>
 
@@ -68,32 +83,42 @@ import { onShow } from '@dcloudio/uni-app'
 const user = ref(null)
 const profile = ref(null)
 
+const roleMap = {
+  coach: '教练',
+  student: '学生',
+  guest: '普通用户'
+}
+
 const displayName = computed(() => {
   if (!user.value) return '未登录'
-  return user.value.nickname || user.value.openid
+  return user.value.nickname || user.value.username
 })
 
 const displayDesc = computed(() => {
   if (!user.value) return '登录后同步训练档案'
   const level = profile.value?.level || '初级球员'
   const handedness = profile.value?.handedness || '右手持拍'
-  return `${level} · ${handedness}`
+  const roleLabel = roleMap[user.value.role] || '普通用户'
+  return `${roleLabel} · ${level} · ${handedness}`
 })
 
 const fetchProfile = async () => {
-  const token = uni.getStorageSync('token')
-  if (!token) return
+  const username = uni.getStorageSync('username')
+  if (!username) return
   try {
-    const res = await uni.request({
-      url: 'http://localhost:3001/api/auth/me',
-      method: 'GET',
-      header: {
-        Authorization: `Bearer ${token}`
+    const res = await uniCloud.callFunction({
+      name: 'tennis-auth',
+      data: {
+        action: 'me',
+        data: { username }
       }
     })
-    if (res.statusCode === 200 && res.data) {
-      user.value = res.data.user
-      profile.value = res.data.profile
+    const payload = res.result || {}
+    if (payload.code === 0 && payload.data) {
+      user.value = payload.data.user
+      profile.value = payload.data.profile
+      editNickname.value = payload.data.user.nickname || ''
+      editAvatar.value = payload.data.user.avatar || ''
     }
   } catch (e) {
     user.value = null
@@ -118,6 +143,92 @@ const sessions = ref([
   { title: '步伐与重心', time: '02/03 20:00 · 40 分钟', score: '评分 82' }
 ])
 
+const editNickname = ref('')
+const editAvatar = ref('')
+const uploading = ref(false)
+const saving = ref(false)
+const showNicknameModal = ref(false)
+const nicknameDraft = ref('')
+
+const openEditSheet = () => {
+  if (!user.value) return
+  uni.showActionSheet({
+    itemList: ['修改头像', '修改昵称'],
+    success: (res) => {
+      if (res.tapIndex === 0) {
+        chooseAvatar()
+      }
+      if (res.tapIndex === 1) {
+        openNicknameModal()
+      }
+    }
+  })
+}
+
+const openNicknameModal = () => {
+  nicknameDraft.value = editNickname.value || ''
+  showNicknameModal.value = true
+}
+
+const closeNicknameModal = () => {
+  showNicknameModal.value = false
+}
+
+const chooseAvatar = async () => {
+  try {
+    const [err, res] = await uni.chooseImage({ count: 1, sizeType: ['compressed'] })
+    if (err) return
+    const filePath = res.tempFilePaths[0]
+    uploading.value = true
+    const upload = await uniCloud.uploadFile({
+      cloudPath: `avatars/${Date.now()}-${filePath.split('/').pop()}`,
+      filePath
+    })
+    editAvatar.value = upload.fileID
+    await saveProfile()
+  } catch (e) {
+    uni.showToast({ title: '头像上传失败，请确认已配置小程序 AppID', icon: 'none' })
+  } finally {
+    uploading.value = false
+  }
+}
+
+const saveProfile = async () => {
+  if (!user.value) return
+  saving.value = true
+  try {
+    const res = await uniCloud.callFunction({
+      name: 'tennis-auth',
+      data: {
+        action: 'updateProfile',
+        data: {
+          username: user.value.username,
+          nickname: editNickname.value,
+          avatar: editAvatar.value
+        }
+      }
+    })
+    const payload = res.result || {}
+    if (payload.code === 0 && payload.data) {
+      user.value = payload.data.user
+      profile.value = payload.data.profile
+      uni.showToast({ title: '保存成功', icon: 'none' })
+      showNicknameModal.value = false
+    } else {
+      uni.showToast({ title: payload.message || '保存失败', icon: 'none' })
+    }
+  } catch (e) {
+    uni.showToast({ title: '保存失败', icon: 'none' })
+  } finally {
+    saving.value = false
+  }
+}
+
+const confirmNickname = async () => {
+  editNickname.value = nicknameDraft.value
+  await saveProfile()
+}
+
 const goLogin = () => {
   uni.navigateTo({ url: '/pages/auth/login/index' })
 }
@@ -127,7 +238,7 @@ const goRegister = () => {
 }
 
 const logout = () => {
-  uni.removeStorageSync('token')
+  uni.removeStorageSync('username')
   user.value = null
   profile.value = null
   uni.showToast({ title: '已退出', icon: 'none' })
@@ -211,6 +322,13 @@ onShow(() => {
   display: block;
 }
 
+.profile-tip {
+  font-size: 11px;
+  color: #b48a64;
+  margin-top: 2px;
+  display: block;
+}
+
 .btn-outline {
   background-color: #fff;
   color: #c56a1b;
@@ -236,6 +354,51 @@ onShow(() => {
 
 .section {
   margin-top: 18px;
+}
+
+.modal-mask {
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.modal-card {
+  width: 82%;
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid #f3e7dd;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #3d2a1a;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.modal-input {
+  height: 42px;
+  border: 1px solid #f0e7de;
+  border-radius: 10px;
+  padding: 0 12px;
+  background-color: #fff;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
 }
 
 .section-title {

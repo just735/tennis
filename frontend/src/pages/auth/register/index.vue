@@ -7,19 +7,26 @@
 
     <view class="card">
       <view class="hint">
-        <text class="hint-text">昵称与头像可选，后续可在“我的”修改</text>
+        <text class="hint-text">注册后可在个人主页完善资料</text>
       </view>
       <view class="form-item">
-        <text class="label">openid</text>
-        <input class="input" v-model="openid" placeholder="请输入微信 openid" />
+        <text class="label">用户名</text>
+        <input class="input" v-model="username" placeholder="请输入用户名" />
       </view>
       <view class="form-item">
-        <text class="label">昵称</text>
-        <input class="input" v-model="nickname" placeholder="可选" />
+        <text class="label">身份</text>
+        <picker mode="selector" :range="roles" @change="onRoleChange">
+          <view class="input">{{ roleLabel }}</view>
+        </picker>
+        <text class="role-tip">选择适合你的身份，可在个人主页完善资料</text>
       </view>
       <view class="form-item">
-        <text class="label">头像 URL</text>
-        <input class="input" v-model="avatar" placeholder="可选" />
+        <text class="label">密码</text>
+        <input class="input" v-model="password" password placeholder="请输入密码" />
+      </view>
+      <view class="form-item">
+        <text class="label">确认密码</text>
+        <input class="input" v-model="passwordConfirm" password placeholder="请再次输入密码" />
       </view>
       <button class="btn-primary" :disabled="loading" @click="handleRegister">
         {{ loading ? '注册中...' : '注册' }}
@@ -32,36 +39,54 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
-const openid = ref('')
-const nickname = ref('')
-const avatar = ref('')
+const username = ref('')
+const roles = ['教练', '学生', '普通用户']
+const role = ref('普通用户')
+const roleLabel = computed(() => role.value)
+const onRoleChange = (e) => {
+  role.value = roles[e.detail.value]
+}
+const password = ref('')
+const passwordConfirm = ref('')
 const loading = ref(false)
 
 const handleRegister = async () => {
-  if (!openid.value) {
-    uni.showToast({ title: '请输入 openid', icon: 'none' })
+  if (!username.value) {
+    uni.showToast({ title: '请输入用户名', icon: 'none' })
+    return
+  }
+  if (!password.value || !passwordConfirm.value) {
+    uni.showToast({ title: '请输入并确认密码', icon: 'none' })
+    return
+  }
+  if (password.value !== passwordConfirm.value) {
+    uni.showToast({ title: '两次密码不一致', icon: 'none' })
     return
   }
   loading.value = true
   try {
-    const res = await uni.request({
-      url: 'http://localhost:3001/api/auth/register',
-      method: 'POST',
+    const res = await uniCloud.callFunction({
+      name: 'tennis-auth',
       data: {
-        openid: openid.value,
-        nickname: nickname.value,
-        avatar: avatar.value
+        action: 'register',
+        data: {
+          username: username.value,
+          role: role.value === '教练' ? 'coach' : role.value === '学生' ? 'student' : 'guest',
+          password: password.value,
+          passwordConfirm: passwordConfirm.value
+        }
       }
     })
-    if (res.statusCode === 200 && res.data) {
+    const payload = res.result || {}
+    if (payload.code === 0) {
       uni.showToast({ title: '注册成功', icon: 'none' })
       setTimeout(() => {
         uni.redirectTo({ url: '/pages/auth/login/index' })
       }, 300)
     } else {
-      uni.showToast({ title: res.data?.message || '注册失败', icon: 'none' })
+      uni.showToast({ title: payload.message || '注册失败', icon: 'none' })
     }
   } catch (e) {
     uni.showToast({ title: '注册失败', icon: 'none' })
@@ -108,7 +133,7 @@ const goLogin = () => {
 .card {
   background-color: #fff;
   border-radius: 14px;
-  padding: 18px;
+  padding: 20px;
   border: 1px solid #f3e7dd;
   box-shadow: 0 10px 18px rgba(0,0,0,0.05);
 }
@@ -124,6 +149,13 @@ const goLogin = () => {
 .hint-text {
   font-size: 12px;
   color: #8b6a4b;
+}
+
+.role-tip {
+  font-size: 11px;
+  color: #b48a64;
+  margin-top: 6px;
+  display: block;
 }
 
 .form-item {
@@ -152,6 +184,8 @@ const goLogin = () => {
   font-size: 14px;
   width: 100%;
   margin-top: 8px;
+  height: 44px;
+  box-shadow: 0 8px 16px rgba(197, 106, 27, 0.2);
 }
 
 .footer {

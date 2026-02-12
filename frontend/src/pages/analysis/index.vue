@@ -81,15 +81,17 @@ const categoryMap = {
 
 const fetchStaticData = async () => {
   try {
-    const res = await uni.request({
-      url: 'http://localhost:3001/api/analysis/suggestion',
-      method: 'GET'
+    const res = await uniCloud.callFunction({
+      name: 'tennis-analysis',
+      data: {
+        action: 'suggestion'
+      }
     })
-    if (res.statusCode === 200 && res.data) {
-      videoUrl.value = res.data.videoUrl
+    const payload = res.result || {}
+    if (payload.code === 0 && payload.data) {
+      videoUrl.value = payload.data.videoUrl
     }
   } catch (e) {
-    console.error('Failed to fetch static suggestions', e)
   }
 }
 
@@ -101,23 +103,23 @@ const refreshPreview = async () => {
 const generateReport = async () => {
   loading.value = true
   try {
-    const res = await uni.request({
-      url: 'http://localhost:3001/api/analysis/report',
-      method: 'POST',
+    const res = await uniCloud.callFunction({
+      name: 'tennis-analysis',
       data: {
-        // 实际场景中这里会发送最近的运动数据
-        userId: 'test-user'
+        action: 'report',
+        data: {
+          username: uni.getStorageSync('username')
+        }
       }
     })
-    
-    if (res.statusCode === 200 && res.data) {
-      report.value = res.data.report
-      comparison.value = res.data.comparison
-      suggestions.value = res.data.suggestions
+    const payload = res.result || {}
+    if (payload.code === 0 && payload.data) {
+      report.value = payload.data.report
+      comparison.value = payload.data.comparison
+      suggestions.value = payload.data.suggestions
     }
   } catch (e) {
-    console.error('Analysis failed', e)
-    uni.showToast({ title: '分析失败，请检查后端', icon: 'none' })
+    uni.showToast({ title: '分析失败，请检查云函数', icon: 'none' })
   } finally {
     loading.value = false
   }
