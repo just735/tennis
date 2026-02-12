@@ -187,7 +187,7 @@ const chooseAvatar = async () => {
     editAvatar.value = upload.fileID
     await saveProfile()
   } catch (e) {
-    uni.showToast({ title: '头像上传失败，请确认已配置小程序 AppID', icon: 'none' })
+    uni.showToast({ title: '头像上传失败', icon: 'none' })
   } finally {
     uploading.value = false
   }
