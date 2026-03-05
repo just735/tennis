@@ -73,6 +73,21 @@
         </view>
       </view>
     </view>
+
+    <!-- 教练入口 -->
+    <view v-if="isCoach" class="section">
+      <view class="section-title">教练功能</view>
+      <view class="card coach-entry" @click="goCoachDashboard">
+        <view class="coach-entry-content">
+          <text class="coach-icon">👨‍🏫</text>
+          <view class="coach-info">
+            <text class="coach-title">进入教练工作台</text>
+            <text class="coach-desc">管理班级和学员训练数据</text>
+          </view>
+          <text class="coach-arrow">></text>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -82,6 +97,7 @@ import { onShow } from '@dcloudio/uni-app'
 
 const user = ref(null)
 const profile = ref(null)
+const isCoach = ref(false)
 
 const roleMap = {
   coach: '教练',
@@ -104,7 +120,10 @@ const displayDesc = computed(() => {
 
 const fetchProfile = async () => {
   const username = uni.getStorageSync('username')
+  
   if (!username) return
+  
+  // 优先从数据库获取真实数据
   try {
     const res = await uniCloud.callFunction({
       name: 'tennis-auth',
@@ -119,11 +138,37 @@ const fetchProfile = async () => {
       profile.value = payload.data.profile
       editNickname.value = payload.data.user.nickname || ''
       editAvatar.value = payload.data.user.avatar || ''
+      // 使用数据库中的角色
+      isCoach.value = payload.data.user.role === 'coach'
+      
+      // 更新本地存储的角色（保持同步）
+      uni.setStorageSync('userRole', payload.data.user.role)
+      
+      console.log('Profile fetch from DB - role:', payload.data.user.role, 'isCoach:', isCoach.value)
+      return
     }
   } catch (e) {
-    user.value = null
-    profile.value = null
+    console.log('DB fetch failed, using local data:', e)
   }
+  
+  // 数据库查询失败时使用本地数据
+  const userRole = uni.getStorageSync('userRole')
+  const role = userRole || 'student'
+  user.value = {
+    username: username,
+    nickname: username,
+    role: role,
+    avatar: ''
+  }
+  profile.value = {
+    level: '初级球员',
+    handedness: '右手持拍'
+  }
+  editNickname.value = username
+  editAvatar.value = ''
+  isCoach.value = role === 'coach'
+  
+  console.log('Profile fetch from local - role:', role, 'isCoach:', isCoach.value)
 }
 
 const devices = ref([
@@ -239,9 +284,15 @@ const goRegister = () => {
 
 const logout = () => {
   uni.removeStorageSync('username')
+  uni.removeStorageSync('userRole')
   user.value = null
   profile.value = null
+  isCoach.value = false
   uni.showToast({ title: '已退出', icon: 'none' })
+}
+
+const goCoachDashboard = () => {
+  uni.navigateTo({ url: '/pages/coach/index' })
 }
 
 onShow(() => {
@@ -471,6 +522,45 @@ onShow(() => {
 .session-score {
   font-size: 12px;
   font-weight: bold;
+  color: #c56a1b;
+}
+
+.coach-entry {
+  background: linear-gradient(135deg, #fff7ef 0%, #f9efe6 100%);
+  border: 1px solid #f2d7bf;
+}
+
+.coach-entry-content {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.coach-icon {
+  font-size: 32px;
+  margin-right: 12px;
+}
+
+.coach-info {
+  flex: 1;
+}
+
+.coach-title {
+  font-size: 15px;
+  font-weight: bold;
+  color: #3d2a1a;
+  display: block;
+}
+
+.coach-desc {
+  font-size: 12px;
+  color: #8b6a4b;
+  margin-top: 2px;
+  display: block;
+}
+
+.coach-arrow {
+  font-size: 16px;
   color: #c56a1b;
 }
 </style>

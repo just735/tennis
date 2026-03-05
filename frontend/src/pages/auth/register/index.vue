@@ -66,6 +66,36 @@ const handleRegister = async () => {
     return
   }
   loading.value = true
+  
+  // 本地模拟注册（用于开发测试）
+  // 将角色映射为存储值
+  const roleMap = {
+    '教练': 'coach',
+    '学生': 'student',
+    '普通用户': 'guest'
+  }
+  const storedRole = roleMap[role.value] || 'guest'
+  
+  setTimeout(() => {
+    // 存储用户信息到本地
+    uni.setStorageSync('username', username.value)
+    uni.setStorageSync('userRole', storedRole)
+    console.log('Register - stored user:', username.value, 'role:', storedRole)
+    
+    uni.showToast({ title: '注册成功', icon: 'none' })
+    setTimeout(() => {
+      // 根据角色跳转到不同页面
+      if (storedRole === 'coach') {
+        uni.redirectTo({ url: '/pages/coach/index' })
+      } else {
+        uni.switchTab({ url: '/pages/profile/index' })
+      }
+    }, 300)
+    loading.value = false
+  }, 500)
+  
+  /*
+  // 正式环境使用 uniCloud 注册
   try {
     const res = await uniCloud.callFunction({
       name: 'tennis-auth',
@@ -93,6 +123,7 @@ const handleRegister = async () => {
   } finally {
     loading.value = false
   }
+  */
 }
 
 const goLogin = () => {
