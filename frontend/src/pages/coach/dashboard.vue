@@ -134,7 +134,7 @@ const fetchStudentsData = async () => {
 const fetchDashboardData = async (student_ids) => {
   if (student_ids.length === 0) return;
   const db = uniCloud.database();
-  const { result } = await db.collection('tennis-device-data').where({ user_id: db.command.in(student_ids) }).field({ 'racket': 1, 'user_id': 1 }).get();
+  const { result } = await db.collection('tennis-device-data').where({ user_id: db.command.in(student_ids) }).get();
   if (result.data && result.data.length > 0) {
     const allSpeeds = result.data.map(item => item.racket.speed).filter(Boolean);
     if (allSpeeds.length > 0) {
