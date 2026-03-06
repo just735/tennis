@@ -42,24 +42,28 @@ exports.main = async (event, context) => {
     const salt = crypto.randomBytes(16).toString("hex");
     const passwordHash = hashPassword(password, salt);
     const extInfo = { level: "初级球员", handedness: "右手持拍" };
-    const insert = await users.add({
-      username,
-      role: role || "guest",
-      nickname: nickname || "",
-      avatar: avatar || "",
-      password_hash: passwordHash,
-      password_salt: salt,
-      ext_info: extInfo,
-      create_time: now,
-      update_time: now
-    });
-    return {
-      code: 0,
-      data: {
-        user: { _id: insert.id, username, role: role || "guest", nickname: nickname || "", avatar: avatar || "" },
-        profile: extInfo
-      }
-    };
+    try {
+      const insert = await users.add({
+        username,
+        role: role || "guest",
+        nickname: nickname || "",
+        avatar: avatar || "",
+        password_hash: passwordHash,
+        password_salt: salt,
+        ext_info: extInfo,
+        create_time: now,
+        update_time: now
+      });
+      return {
+        code: 0,
+        data: {
+          user: { _id: insert.id, username, role: role || "guest", nickname: nickname || "", avatar: avatar || "" },
+          profile: extInfo
+        }
+      };
+    } catch (e) {
+      return { code: 1, message: '数据库写入失败，请稍后重试', error: e.message };
+    }
   }
   if (action === "login") {
     const { username, password } = data || {};

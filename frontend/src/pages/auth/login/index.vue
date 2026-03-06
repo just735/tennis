@@ -78,13 +78,8 @@ const handleLogin = async () => {
       uni.setStorageSync('username', username.value);
       uni.showToast({ title: '登录成功', icon: 'none' })
       setTimeout(() => {
-        // 根据数据库中的角色跳转到不同页面
-        if (role === 'coach') {
-          uni.redirectTo({ url: '/pages/coach/index' })
-        } else {
-          uni.switchTab({ url: '/pages/profile/index' })
-        }
-      }, 300)
+        uni.switchTab({ url: '/pages/profile/index' });
+      }, 300);
     } else {
       uni.showToast({ title: payload.message || '登录失败', icon: 'none' })
     }

@@ -1,0 +1,61 @@
+{
+  "bsonType": "object",
+  "required": ["username", "password_hash", "password_salt"],
+  "permission": {
+    "read": "doc._id == auth.uid",
+    "create": true,
+    "update": "doc._id == auth.uid",
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "username": {
+      "bsonType": "string",
+      "description": "用户名，唯一"
+    },
+    "password_hash": {
+      "bsonType": "string",
+      "description": "加盐后的密码哈希值"
+    },
+    "password_salt": {
+      "bsonType": "string",
+      "description": "密码盐"
+    },
+    "role": {
+      "bsonType": "string",
+      "description": "用户角色（coach, student, guest）"
+    },
+    "nickname": {
+      "bsonType": "string",
+      "description": "用户昵称"
+    },
+    "avatar": {
+      "bsonType": "string",
+      "description": "用户头像地址"
+    },
+    "ext_info": {
+      "bsonType": "object",
+      "description": "扩展信息",
+      "properties": {
+        "level": {
+          "bsonType": "string",
+          "description": "球员等级"
+        },
+        "handedness": {
+          "bsonType": "string",
+          "description": "持拍手"
+        }
+      }
+    },
+    "create_time": {
+      "bsonType": "timestamp",
+      "description": "创建时间"
+    },
+    "update_time": {
+      "bsonType": "timestamp",
+      "description": "更新时间"
+    }
+  }
+}
