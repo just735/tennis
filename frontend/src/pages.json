@@ -47,6 +47,48 @@
 			"style": {
 				"navigationBarTitleText": "uni-app"
 			}
+		},
+		{
+			"path": "pages/coach/index",
+			"style": {
+				"navigationBarTitleText": "教练工作台"
+			}
+		},
+		{
+			"path": "pages/coach/class/list/index",
+			"style": {
+				"navigationBarTitleText": "班级管理"
+			}
+		},
+		{
+			"path": "pages/coach/class/detail/index",
+			"style": {
+				"navigationBarTitleText": "班级详情"
+			}
+		},
+		{
+			"path": "pages/coach/class/create/index",
+			"style": {
+				"navigationBarTitleText": "创建班级"
+			}
+		},
+		{
+			"path": "pages/coach/student/list/index",
+			"style": {
+				"navigationBarTitleText": "学员管理"
+			}
+		},
+		{
+			"path": "pages/coach/student/detail/index",
+			"style": {
+				"navigationBarTitleText": "学员详情"
+			}
+		},
+		{
+			"path": "pages/coach/student/invite/index",
+			"style": {
+				"navigationBarTitleText": "邀请学员"
+			}
 		}
 	],
 	"globalStyle": {

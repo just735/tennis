@@ -14,6 +14,12 @@
         <input class="input" v-model="username" placeholder="请输入用户名" />
       </view>
       <view class="form-item">
+        <text class="label">身份</text>
+        <picker mode="selector" :range="roles" :value="roleIndex" @change="onRoleChange">
+          <view class="input">{{ roleLabel }}</view>
+        </picker>
+      </view>
+      <view class="form-item">
         <text class="label">密码</text>
         <input class="input" v-model="password" password placeholder="请输入密码" />
       </view>
@@ -28,11 +34,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const username = ref('')
 const password = ref('')
 const loading = ref(false)
+
+// 角色选择
+const roles = ['学生', '教练']
+const roleValues = ['student', 'coach']
+const roleIndex = ref(0)
+const roleLabel = computed(() => roles[roleIndex.value])
+const onRoleChange = (e) => {
+  roleIndex.value = e.detail.value
+}
 
 const handleLogin = async () => {
   if (!username.value) {
@@ -44,6 +59,8 @@ const handleLogin = async () => {
     return
   }
   loading.value = true
+  
+  // 优先使用数据库验证登录
   try {
     const res = await uniCloud.callFunction({
       name: 'tennis-auth',
@@ -61,13 +78,30 @@ const handleLogin = async () => {
       uni.setStorageSync('username', username.value);
       uni.showToast({ title: '登录成功', icon: 'none' })
       setTimeout(() => {
-        uni.switchTab({ url: '/pages/profile/index' })
+        // 根据数据库中的角色跳转到不同页面
+        if (role === 'coach') {
+          uni.redirectTo({ url: '/pages/coach/index' })
+        } else {
+          uni.switchTab({ url: '/pages/profile/index' })
+        }
       }, 300)
     } else {
       uni.showToast({ title: payload.message || '登录失败', icon: 'none' })
     }
   } catch (e) {
-    uni.showToast({ title: '登录失败', icon: 'none' })
+    console.log('DB login failed, using local mock:', e)
+    // 数据库失败时使用本地模拟
+    const role = roleValues[roleIndex.value]
+    uni.setStorageSync('username', username.value)
+    uni.setStorageSync('userRole', role)
+    uni.showToast({ title: '登录成功（本地模式）', icon: 'none' })
+    setTimeout(() => {
+      if (role === 'coach') {
+        uni.redirectTo({ url: '/pages/coach/index' })
+      } else {
+        uni.switchTab({ url: '/pages/profile/index' })
+      }
+    }, 300)
   } finally {
     loading.value = false
   }
