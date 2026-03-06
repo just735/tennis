@@ -24,7 +24,7 @@ const mapUser = (record) => ({
   avatar: record.avatar || ""
 });
 
-exports.main = async (event) => {
+exports.main = async (event, context) => {
   const { action, data } = event || {};
   if (!action) {
     return { code: 1, message: "缺少 action" };
@@ -111,6 +111,42 @@ exports.main = async (event) => {
         profile: buildProfile(user)
       }
     };
+  }
+  if (action === "bindStudent") {
+    const { studentUsername } = data || {};
+    const { uid } = context;
+
+    if (!uid) {
+      return { code: 401, message: "教练未登录" };
+    }
+
+    if (!studentUsername) {
+      return { code: 1, message: "请输入学员用户名" };
+    }
+
+    const studentRes = await users.where({ username: studentUsername }).get();
+    if (!studentRes.data || studentRes.data.length === 0) {
+      return { code: 1, message: "未找到该学员" };
+    }
+    const studentId = studentRes.data[0]._id;
+
+    const coachId = uid;
+
+    const relationRes = await db.collection('t_coach_student').where({
+      coach_id: coachId,
+      student_id: studentId
+    }).count();
+
+    if (relationRes.total > 0) {
+      return { code: 1, message: "已绑定该学员，请勿重复操作" };
+    }
+
+    await db.collection('t_coach_student').add({
+      coach_id: coachId,
+      student_id: studentId,
+    });
+
+    return { code: 0, message: "绑定成功" };
   }
   return { code: 1, message: "未知 action" };
 };

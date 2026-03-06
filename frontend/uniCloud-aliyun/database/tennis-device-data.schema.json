@@ -1,0 +1,60 @@
+{
+  "bsonType": "object",
+  "required": ["user_id", "device_id"],
+  "permission": {
+    "read": "doc.user_id == auth.uid",
+    "create": "auth.uid != null",
+    "update": false,
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "user_id": {
+      "bsonType": "string",
+      "description": "用户ID，关联uni-id-users表",
+      "foreignKey": "uni-id-users._id"
+    },
+    "device_id": {
+      "bsonType": "string",
+      "description": "设备ID"
+    },
+    "racket": {
+      "bsonType": "object",
+      "description": "球拍相关数据",
+      "properties": {
+        "speed": {
+          "bsonType": "int",
+          "description": "挥拍速度，单位 km/h"
+        },
+        "trajectory": {
+          "bsonType": "array",
+          "description": "挥拍轨迹坐标点"
+        }
+      }
+    },
+    "footwork": {
+      "bsonType": "object",
+      "description": "步法相关数据",
+      "properties": {
+        "steps": {
+          "bsonType": "int",
+          "description": "步数"
+        },
+        "cadence": {
+          "bsonType": "int",
+          "description": "步频，单位 步/分钟"
+        }
+      }
+    },
+    "heatmap": {
+      "bsonType": "array",
+      "description": "热力图数据"
+    },
+    "created_at": {
+      "bsonType": "timestamp",
+      "description": "创建时间"
+    }
+  }
+}

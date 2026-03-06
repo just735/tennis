@@ -1,0 +1,30 @@
+{
+  "bsonType": "object",
+  "required": ["user_id"],
+  "permission": {
+    "read": true,
+    "create": "auth.uid != null",
+    "update": "doc.user_id == auth.uid",
+    "delete": false
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "user_id": {
+      "bsonType": "string",
+      "description": "用户ID，关联uni-id-users表",
+      "foreignKey": "uni-id-users._id"
+    },
+    "coach_name": {
+      "bsonType": "string",
+      "title": "教练姓名",
+      "description": "教练的真实姓名"
+    },
+    "coach_qualify": {
+      "bsonType": "string",
+      "title": "教练资质",
+      "description": "教练的资质信息，如 PTR 职业级"
+    }
+  }
+}

@@ -57,7 +57,8 @@ const handleLogin = async () => {
     })
     const payload = res.result || {}
     if (payload.code === 0 && payload.data) {
-      uni.setStorageSync('username', username.value)
+      uni.setStorageSync('uni_id_token', payload.data.token);
+      uni.setStorageSync('username', username.value);
       uni.showToast({ title: '登录成功', icon: 'none' })
       setTimeout(() => {
         uni.switchTab({ url: '/pages/profile/index' })

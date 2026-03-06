@@ -25,6 +25,12 @@
 			}
 		},
 		{
+			"path": "pages/profile/coach-edit",
+			"style": {
+				"navigationBarTitleText": "编辑教练资料"
+			}
+		},
+		{
 			"path": "pages/auth/login/index",
 			"style": {
 				"navigationBarTitleText": "登录"

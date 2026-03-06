@@ -1,0 +1,49 @@
+{
+  "bsonType": "object",
+  "description": "教练与学员的绑定关系表",
+  "required": ["coach_id", "student_id"],
+  "permission": {
+    "read": "doc.coach_id == auth.uid || doc.student_id == auth.uid",
+    "create": "auth.uid != null",
+    "update": false,
+    "delete": "doc.coach_id == auth.uid"
+  },
+  "properties": {
+    "_id": {
+      "description": "ID，系统自动生成"
+    },
+    "coach_id": {
+      "bsonType": "string",
+      "description": "教练的用户ID，关联 tennis-users 表的 _id",
+      "foreignKey": "tennis-users._id"
+    },
+    "student_id": {
+      "bsonType": "string",
+      "description": "学员的用户ID，关联 tennis-users 表的 _id",
+      "foreignKey": "tennis-users._id"
+    },
+    "status": {
+      "bsonType": "int",
+      "title": "绑定状态",
+      "description": "0: 正常, 1: 已解绑",
+      "defaultValue": 0
+    },
+    "create_time": {
+      "bsonType": "timestamp",
+      "description": "绑定时间",
+      "forceDefaultValue": {
+        "$env": "now"
+      }
+    }
+  },
+  "indexes": [
+    {
+      "name": "idx_coach_student_unique",
+      "key": {
+        "coach_id": 1,
+        "student_id": 1
+      },
+      "unique": true
+    }
+  ]
+}
